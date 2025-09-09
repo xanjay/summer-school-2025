@@ -52,7 +52,27 @@ def detect_color_objects(image, color_name):
     cv2.destroyAllWindows()
 
 
+def detect_color_objects_using_nyro(img_test, hsv_color=ColorHSV.RED.value):
+    img_threshold = threshold_hsv(img_test, *hsv_color)
+    img_threshold = morphological_transformations(img_threshold, morpho_type=MorphoType.OPEN,
+    kernel_shape=(11, 11), kernel_type=KernelType.ELLIPSE)
+    cnt = biggest_contour_finder(img_threshold)
+    cnt_barycenter = get_contour_barycenter(cnt)
+    cx, cy = cnt_barycenter
+    cnt_angle = get_contour_angle(cnt)
+    # img_debug = draw_contours(img_threshold, [cnt])
+    # img_debug = draw_barycenter(img_debug, cx, cy)
+    # img_debug = draw_angle(img_debug, cx, cy, cnt_angle)
+    # show_img_and_wait_close("Image with contours, barycenter and angle", img_debug)
+    return (cx,cy), cnt_angle
+
+
 undistorted_img = get_undistorted_img_from_camera(robot)
-detect_color_objects(undistorted_img,"red")
+center, cnt_angle = detect_color_objects_using_nyro(undistorted_img)
+
+relative_center = relative_pos_from_pixels(undistorted_img, *center)
+print(relative_center)
 
 robot.close_connection()
+
+# todo
