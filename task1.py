@@ -1,10 +1,10 @@
 from pyniryo import *
 from pyniryo import NiryoRobot
+from utils import connect_to_robot, get_position_from_free_move
 
 # task 1.1
 # connect the robot
-robot = NiryoRobot("169.254.200.200")
-robot.calibrate_auto() # calibrate
+robot = connect_to_robot()
 
 
 # task 1.2
@@ -12,12 +12,7 @@ robot.calibrate_auto() # calibrate
 # robot.led_ring_snake([250, 0, 55], iterations=10, wait=True)
 
 #task 1.3: get the current position of robot
-def get_position_from_free_move():
-    try:
-        input("Press enter to get position")
-        return robot.get_pose()
-    except KeyboardInterrupt:
-        print("Keyboard interrupt")
+get_position_from_free_move(robot)
 
 
 # task 1.4: first move
@@ -26,22 +21,15 @@ def get_position_from_free_move():
 # robot.move_to_home_pose()
 
 # task 1.5: move the robot between two positions
-# position1 = get_position_from_free_move()
-# position2 = get_position_from_free_move()
+# position1 = get_position_from_free_move(robot)
+# position2 = get_position_from_free_move(robot)
 
-robot.set_arm_max_velocity(40)
 # for i in range(10):
 #     robot.move(position1)
 #     robot.wait(1) # wait 1 sec
 #     robot.move(position2)
 
 # task 1.6: draw s square in the air
-def get_joints_position_from_free_move():
-    try:
-        input("Press enter to get joints position")
-        return robot.get_joints()
-    except KeyboardInterrupt:
-        print("Keyboard interrupt")
 
 #joint_position = get_joints_position_from_free_move()
 
