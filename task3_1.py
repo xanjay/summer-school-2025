@@ -8,14 +8,14 @@ import cv2
 robot = connect_to_robot()
 
 # task3.1 pick and place
-
+robot.update_tool()
 robot.open_gripper()
 
 print("get object position")
 object_position = get_joints_position_from_free_move(robot)
 
 print("get final position")
-final_position = get_position_from_free_move(robot)
+final_position = get_joints_position_from_free_move(robot)
 
 robot.pick_and_place(object_position, final_position)
 
