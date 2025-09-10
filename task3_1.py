@@ -12,10 +12,10 @@ robot.update_tool()
 robot.release_with_tool()
 
 print("get object position")
-object_position = get_joints_position_from_free_move(robot)
+object_position = get_position_from_free_move(robot)
 
 print("get final position")
-final_position = get_joints_position_from_free_move(robot)
+final_position = get_position_from_free_move(robot)
 
 robot.pick_and_place(object_position, final_position)
 
