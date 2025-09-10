@@ -7,15 +7,17 @@ import cv2
 
 robot = connect_to_robot()
 
-conveyor = robot.set_conveyor()
+conveyor1 = robot.set_conveyor()
 
-robot.run_conveyor(conveyor, 10, ConveyorDirection.FORWARD)
+robot.run_conveyor(conveyor1, 50, ConveyorDirection.FORWARD)
 
 while True:
     if robot.digital_read(PinID.DI5) == PinState.LOW:
         break
 
-robot.stop_conveyor(conveyor)
-robot.unset_conveyor(conveyor)
+
+print("Debug")
+robot.stop_conveyor(conveyor1)
+# robot.unset_conveyor(conveyor1)
 
 robot.close_connection()
