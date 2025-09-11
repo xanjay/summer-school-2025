@@ -37,7 +37,7 @@ def get_undistorted_img_from_camera(robot):
     undistorted_img = extract_img_workspace(final_img, 1)
     return undistorted_img
 
-def detect_color_objects_using_nyro(img_test, hsv_color=ColorHSV.RED.value):
+def detect_color_objects_using_nyro_old(img_test, hsv_color=ColorHSV.RED.value):
     img_threshold = threshold_hsv(img_test, *hsv_color)
     img_threshold = morphological_transformations(img_threshold, morpho_type=MorphoType.OPEN,
                                                   kernel_shape=(11, 11), kernel_type=KernelType.ELLIPSE)
@@ -50,6 +50,28 @@ def detect_color_objects_using_nyro(img_test, hsv_color=ColorHSV.RED.value):
     cx, cy = cnt_barycenter
     cnt_angle = get_contour_angle(cnt)
     return (cx, cy), cnt_angle
+
+def detect_color_objects_using_nyro(img_test, hsv_color=ColorHSV.RED.value, min_area=500):
+    """
+    Detect multiple color objects in an image.
+    Returns a list of tuples: [(center, angle), ...]
+    """
+    img_threshold = threshold_hsv(img_test, *hsv_color)
+    img_threshold = morphological_transformations(img_threshold, morpho_type=MorphoType.OPEN,
+                                                  kernel_shape=(11, 11), kernel_type=KernelType.ELLIPSE)
+    # Find all contours
+    contours, _ = cv2.findContours(img_threshold, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    detected_objects = []
+    for cnt in contours:
+        area = cv2.contourArea(cnt)
+        if area < min_area:
+            continue  # skip small contours
+        cnt_barycenter = get_contour_barycenter(cnt)
+        cnt_angle = get_contour_angle(cnt)
+        detected_objects.append((cnt_barycenter, cnt_angle))
+    if not detected_objects:
+        raise Exception("No object found")
+    return detected_objects
 
 
 def move_to_detected_object(robot, object_height=0.1, shape=ObjectShape.SQUARE, color=ColorHSV.RED.value):
@@ -99,9 +121,17 @@ def encode_image(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
 
-def encode_live_image(image):
-    return base64.b64encode(image).decode('utf-8')
+def encode_live_image(image_array):
+    """
+    Encode a numpy image array (e.g., from OpenCV) to base64 string.
+    """
+    if isinstance(image_array, np.ndarray):
+        success, buffer = cv2.imencode('.jpg', image_array)
+        if not success:
+            raise ValueError("Could not encode image array to jpg format.")
+        return base64.b64encode(buffer).decode('utf-8')
+    else:
+        raise TypeError("Input must be a numpy ndarray (image array)")
 
 def move_robot_to_vision_board(robot):
     robot.move(VISION_BOARD_JOINT_POSITION)
-

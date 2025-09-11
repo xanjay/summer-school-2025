@@ -1,3 +1,5 @@
+import cv2
+
 from utils import *
 from pyniryo import *
 
@@ -5,13 +7,16 @@ from pyniryo import *
 # ask for destination position from user
 destination_pos = BETA_ZONE
 
-def detect_and_pick(robot, destination_pos, object_height=-0.005, workspace="cb"):
+def detect_and_pick(robot, destination_pos, object_height=-0.005, workspace="cb2"):
     # custom detect and pick function
     print("Detecting object...")
     # 1. Get undistorted image from camera
     undistorted_img = get_undistorted_img_from_camera(robot)
+    # Rotate image 90 degrees anticlockwise
+    undistorted_img = cv2.rotate(undistorted_img, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    # cv2.imshow("",undistorted_img);cv2.waitKey(0)
     # 2. Detect object center and angle
-    center, cnt_angle = detect_color_objects_using_nyro(undistorted_img)
+    center, cnt_angle = detect_color_objects_using_nyro(undistorted_img)[0] # pick the first detected object
     # 3. Convert pixel coordinates to relative robot coordinates
     relative_center = relative_pos_from_pixels(undistorted_img, *center)
     # 4. Get world position for robot
@@ -22,6 +27,7 @@ def detect_and_pick(robot, destination_pos, object_height=-0.005, workspace="cb"
     # robot.move(pick_position)
     # pick the object
     robot.pick(pick_position)
+    robot.move(CONVEYER_WORKSPACE_JOINT_POSITION_CENTER)
     print("Detection pick position:", pick_position)
     print("Moving to destination position:", destination_pos)
     robot.place(destination_pos)
