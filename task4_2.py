@@ -16,7 +16,6 @@ while True:
         break
 
 
-print("Debug")
 robot.stop_conveyor(conveyor1)
 # robot.unset_conveyor(conveyor1)
 

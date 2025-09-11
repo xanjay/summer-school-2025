@@ -1,6 +1,6 @@
 from utils import *
 from pyniryo import *
-
+from task2_5 import move_to_detected_object
 
 from pyniryo.vision import *
 import cv2
@@ -21,15 +21,12 @@ destination_pos = get_position_from_free_move(robot)
 move_robot_to_vision_board(robot)
 print("Detecting object...")
 # detect object and move to it
-object_shape = ObjectShape.SQUARE
-object_color = ObjectColor.RED
-# detect and pick the object
-obj_found, shape_ret, color_ret = robot.vision_pick("mss",
-                                                    height_offset=-0.005,
-                                                    shape=object_shape,
-                                                    color=object_color)
+# detect using task2.5
+pick_position = move_to_detected_object(robot, object_height=-0.005)
+# pick the object
+robot.pick(pick_position)
 
-print("Detection pick result:", obj_found, shape_ret, color_ret)
+print("Detection pick position:", pick_position)
 print("Moving to destination position:", destination_pos)
 robot.place(destination_pos)
 

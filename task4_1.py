@@ -10,10 +10,10 @@ robot = connect_to_robot()
 conveyor = robot.set_conveyor()
 
 robot.run_conveyor(conveyor, 50, ConveyorDirection.FORWARD)
-robot.wait(10)
+robot.wait(2)
 
 robot.run_conveyor(conveyor, 50, ConveyorDirection.BACKWARD)
-robot.wait(10)
+robot.wait(2)
 
 robot.stop_conveyor(conveyor)
 
