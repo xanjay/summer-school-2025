@@ -20,10 +20,8 @@ response = client.responses.parse(
                 "You are a vision analysis assistant. "
                 "Identify the RED object in the image. "
                 "Return ONLY a JSON object with the following fields:"
-                "position_x: integer (the x coordinate of the object's center pixel)"
-                "position_y: integer (the y coordinate of the object's center pixel)"
                 "shape"
-                "rotation: float (the angle of rotation of the shape in degrees)"
+                "color"
                 "Do not include explanations or extra text. Only return valid JSON."
             )
         },
