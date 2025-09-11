@@ -2,7 +2,8 @@ import os
 from openai import OpenAI
 from dotenv import load_dotenv
 
-from utils import encode_image, DetectedObject
+from utils import encode_image
+from utils_llm import *
 
 load_dotenv()
 

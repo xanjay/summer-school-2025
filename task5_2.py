@@ -1,4 +1,5 @@
-from utils import encode_image, create_ollama_client, detect_objects
+from utils import encode_image
+from utils_llm import *
 
 client = create_ollama_client()
 
