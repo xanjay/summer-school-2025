@@ -1,4 +1,4 @@
-from utils import get_joints_position_from_free_move, connect_to_robot
+from utils import *
 from pyniryo import *
 import numpy as np
 

@@ -1,17 +1,10 @@
-from utils import *
+from utils import connect_to_robot, VISION_BOARD_JOINT_POSITION, move_to_detected_object
 from pyniryo import *
 import numpy as np
 
 from pyniryo.vision import *
 import cv2
 
-
-
-def get_undistorted_img_from_camera(robot):
-    compressed_img = robot.get_img_compressed()
-    final_img = uncompress_image(compressed_img)
-    undistorted_img = extract_img_workspace(final_img, 1)
-    return undistorted_img
 
 
 def detect_color_objects(image, color_name):
@@ -68,38 +61,13 @@ def detect_color_objects_using_nyro(img_test, hsv_color=ColorHSV.RED.value):
     return (cx, cy), cnt_angle
 
 
-def move_to_detected_object(robot, object_height=0.1, shape=ObjectShape.SQUARE, color=ColorHSV.RED.value):
-    """
-    1. Get undistorted image from camera
-    2. Detect object center and angle
-    3. Convert pixel coordinates to relative robot coordinates
-    4. Get world position for robot
-    5. Move robot to the detected object position with specified height
-    6. Return the world position
-    """
-    # 1. Get undistorted image from camera
-    undistorted_img = get_undistorted_img_from_camera(robot)
-    # 2. Detect object center and angle
-    center, cnt_angle = detect_color_objects_using_nyro(undistorted_img, hsv_color=color)
-    # 3. Convert pixel coordinates to relative robot coordinates
-    relative_center = relative_pos_from_pixels(undistorted_img, *center)
-    # 4. Get world position for robot
-    world_position = robot.get_target_pose_from_rel("mss", object_height, relative_center[0], relative_center[1],
-                                                    cnt_angle)
-    world_position.metadata.version=1 # change version to 1 to avoid error
-    world_position.metadata.frame=""
-    # 5. Move robot to the detected object position with specified height
-    robot.move(world_position)
-    return world_position
-
 
 if __name__=="__main__":
     robot = connect_to_robot()
-    robot.update_tool()
     # move to vision position
     robot.move(VISION_BOARD_JOINT_POSITION)
     # detect and move to the object
-    move_to_detected_object(robot, object_height=0.1)
+    move_to_detected_object(robot, object_height=0.05)
 
     robot.close_connection()
 

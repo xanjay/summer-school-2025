@@ -16,7 +16,7 @@ def move_robot_to_vision_board(robot):
 move_robot_to_vision_board(robot)
 
 # ask destination position from user
-destination_pos = get_position_from_free_move(robot)
+destination_pos = CONVEYER_WORKSPACE_JOINT_POSITION
 
 move_robot_to_vision_board(robot)
 print("Detecting object...")
@@ -24,8 +24,8 @@ print("Detecting object...")
 object_shape = ObjectShape.SQUARE
 object_color = ObjectColor.RED
 # detect and pick the object
-obj_found, shape_ret, color_ret = robot.vision_pick("mss",
-                                                    height_offset=-0.005,
+obj_found, shape_ret, color_ret = robot.vision_pick("vb",
+                                                    height_offset=0.01,
                                                     shape=object_shape,
                                                     color=object_color)
 
