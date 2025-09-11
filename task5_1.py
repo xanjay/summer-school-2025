@@ -1,26 +1,32 @@
 import os
 from openai import OpenAI
-from pyniryo import *
-from pydantic import BaseModel
 from dotenv import load_dotenv
 
-from utils import encode_image
-
-class DetectedObject(BaseModel):
-    color: ObjectColor
-    shape: ObjectShape
+from utils import encode_image, DetectedObject
 
 load_dotenv()
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
-img = encode_image(r"C:\Users\machm\PycharmProjects\summer-school-2025\vision_images\vision_config1.jpg")
+img = encode_image(r"vision_images/vision_config1.jpg")
 
 response = client.responses.parse(
     model="gpt-4o",
     input=[
-        {"role": "system", "content": "Find what shape does the red object in the picture have and extract its colod and shape to the DetectedObject."},
+        {
+            "role": "system",
+            "content": (
+                "You are a vision analysis assistant. "
+                "Identify the RED object in the image. "
+                "Return ONLY a JSON object with the following fields:"
+                "position_x: integer (the x coordinate of the object's center pixel)"
+                "position_y: integer (the y coordinate of the object's center pixel)"
+                "shape"
+                "rotation: float (the angle of rotation of the shape in degrees)"
+                "Do not include explanations or extra text. Only return valid JSON."
+            )
+        },
         {
             "role": "user",
             "content": [

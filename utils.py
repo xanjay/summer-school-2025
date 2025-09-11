@@ -1,4 +1,6 @@
 import base64
+
+from pydantic import BaseModel
 from pyniryo import *
 
 
@@ -30,3 +32,10 @@ VISION_BOARD_JOINT_POSITION = JointsPosition(-1.5941865415598904, 0.302466004481
 def encode_image(image_path):
     with open(image_path, "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
+
+class DetectedObject(BaseModel):
+    color: ObjectColor
+    shape: ObjectShape
+    position_x: int
+    position_y: int
+    rotation: float
