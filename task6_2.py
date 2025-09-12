@@ -3,7 +3,7 @@ from pyniryo import *
 from task2_5 import move_to_detected_object
 from pyniryo.vision import *
 import cv2
-from utils_llm import detect_objects_with_world_position, create_ollama_client
+from utils_llm import detect_objects_with_world_position, create_ollama_client, create_openai_client
 
 # Connect to robot
 robot = connect_to_robot()
@@ -16,7 +16,7 @@ beta_zone = BETA_ZONE # destination
 # Detect and pick object
 print("Detecting object...")
 
-llm_client = create_ollama_client()
+llm_client = create_openai_client()
 pick_position_list = detect_objects_with_world_position(llm_client, robot, object_height=0.0)
 
 for pick_position in pick_position_list:

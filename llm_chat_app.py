@@ -7,6 +7,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import ToolMessage
 # from chat_sql.tools import run_sql, run_db_query, plot_fig
 from langchain_core.messages import SystemMessage, AIMessage
+from llm_tools import detect_objects_from_vision_board, pick_and_place_object
 
 from utils_llm import detect_objects_with_world_position, create_ollama_client
 from dotenv import load_dotenv
@@ -19,8 +20,8 @@ OPENAI_MODEL = os.getenv("OPENAI_MODEL")
 from utils import encode_image
 encoded_img = encode_image(r"vision_images/vision_config1.jpg")
 
-AVAILABLE_TOOLS = {"detect_objects": detect_objects_with_world_position,
-                   "create_llm_client": create_ollama_client}
+AVAILABLE_TOOLS = {"detect_objects_from_vision_board": detect_objects_from_vision_board,
+                   "pick_and_place_object": pick_and_place_object}
 
 
 def get_model():
@@ -37,8 +38,24 @@ def get_model():
     )
     # add function call
     llm_with_tools = llm.bind_tools(list(AVAILABLE_TOOLS.values()))
-    return llm
+    return llm_with_tools
 
+
+
+def format_tool_output(tool_name, tool_output):
+    """
+    Format tool output to natural language for user display.
+    """
+    if tool_name == "detect_objects_from_vision_board":
+        if hasattr(tool_output, 'objects'):
+            objects = tool_output.objects
+        else:
+            objects = tool_output
+        if not objects:
+            return "No objects were detected on the vision board."
+        return f"The following objects were detected on the vision board: {objects}"
+    # Add more tool formatting as needed
+    return str(tool_output)
 
 
 def make_tool_calls(ai_tool_calls):
@@ -48,18 +65,20 @@ def make_tool_calls(ai_tool_calls):
     for tool_call in ai_tool_calls:
         selected_tool = AVAILABLE_TOOLS[tool_call["name"].lower()]
         tool_output = selected_tool.invoke(tool_call["args"])
+        formatted_output = format_tool_output(tool_call["name"], tool_output)
 
         # this tool returns artifacts along with message
         if tool_call["name"] == "plot_fig":
             tool_message = ToolMessage(
-                content=tool_output[0], tool_call_id=tool_call["id"]
+                content=formatted_output, tool_call_id=tool_call["id"]
             )
             plots.append(tool_output[-1])
         else:
             tool_message = ToolMessage(
-                content=tool_output, tool_call_id=tool_call["id"]
+                content=formatted_output, tool_call_id=tool_call["id"]
             )
         tool_messages.append(tool_message)
+        print("Tool message:", tool_message)
     return tool_messages, plots
 
 
@@ -82,34 +101,14 @@ def run_model(messages, model, artifacts=None):
 def initialize_assistant():
     messages = []
     system_message = """
-System Prompt: Niryo Robot Assistant
-You are a highly capable assistant designed to control and interact with a Niryo robot. You have access to all functions from the tasks in this codebase as callable tools. 
-Your primary role is to help users operate the robot, automate tasks, and provide guidance on robot usage, vision, and manipulation.
-
-Capabilities:
-You can call any function from the codebase (task1.py, task2.py, ..., task6_2.py, utils.py, utils_llm.py, etc.) as a tool to perform actions or retrieve information.
-You can process images, detect objects, move the robot, pick and place items, and interact with the robot’s vision system.
-You can answer questions, provide step-by-step instructions, and automate workflows involving the Niryo robot.
-
-Instructions:
-Always use the available functions as tools to perform actions. Do not generate code unless explicitly requested.
-Respond concisely and clearly, focusing on solving the user’s request using the robot and available functions.
-If a user asks for a robot action (e.g., move, pick, place, detect), use the relevant function(s) to execute the task.
-If a user asks for information or troubleshooting, use diagnostic or utility functions to gather and present the required data.
-If a user asks for a workflow, break it down into steps and execute each using the appropriate tools.
-If you encounter an error or need more information, ask for clarification or suggest possible solutions using available functions.
-
-Safety and Best Practices:
-Always confirm the robot’s state before performing actions.
-Handle errors gracefully and provide informative feedback.
-Do not perform any unsafe or destructive actions.
-Respect user privacy and workspace integrity.
-
-Example Interactions:
-“Move the robot to the vision board.” → Use move_robot_to_vision_board(robot)
-“Detect and pick up the red cube.” → Use vision and pick functions to locate and pick the object.
-“Show me the current camera image.” → Use get_undistorted_img_from_camera(robot) and display or encode the image.
-You are always ready to assist with any Niryo robot task using the full suite of functions in this codebase.
+You are a Niryo robot assistant.
+ Use only the available tools provided to perform actions or answer questions—do not scan or reference the codebase.
+  When you use a tool, always format its output into clear, natural language before responding to the user.
+  
+  Instructions:
+  - do not use tool call before user prompt
+  Example tool usage:
+  detect_objects_from_vision_board()
     """
 
     messages.append(

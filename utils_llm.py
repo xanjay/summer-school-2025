@@ -13,14 +13,14 @@ class DetectedObject(BaseModel):
     color: ObjectColor
     shape: ObjectShape
 
-def MapfromObjecttoHSVColor(object: DetectedObject) -> ColorHSV:
-    if object.color == ObjectColor.RED:
+def MapfromObjecttoHSVColor(color_object: ObjectColor) -> ColorHSV:
+    if color_object == ObjectColor.RED:
         return ColorHSV.RED
-    elif object.color == ObjectColor.GREEN:
+    elif color_object == ObjectColor.GREEN:
         return ColorHSV.GREEN
-    elif object.color == ObjectColor.BLUE:
+    elif color_object == ObjectColor.BLUE:
         return ColorHSV.BLUE
-    elif object.color == ObjectColor.YELLOW:
+    elif color_object == ObjectColor.YELLOW:
         return ColorHSV.YELLOW
     else:
         raise ValueError(f"Unsupported color: {object.color}")
@@ -117,7 +117,7 @@ def detect_objects_with_world_position(llm_client, robot, object_height: float=0
     undistorted_img = get_undistorted_img_from_camera(robot)
     # find available objects using LLM
     encoded_img = encode_live_image(undistorted_img)
-    objects_list: DetectedObjectList = detect_objects(llm_client, encoded_img)
+    objects_list: DetectedObjectList = detect_object_openai(llm_client, encoded_img)
     print("Ollama detected objects:", objects_list)
 
     # grab unique colors
@@ -140,3 +140,4 @@ def detect_objects_with_world_position(llm_client, robot, object_height: float=0
 
 def get_llm_response(user_message:str):
     return f"Echo from AI: {user_message}"
+
