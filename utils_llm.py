@@ -82,8 +82,8 @@ def detect_object_openai(openai_client, encoded_img):
                 "role": "system",
                 "content": (
                     "You are a vision analysis assistant. "
-                    "Identify the RED object in the image. "
-                    "Return ONLY a JSON object with the following fields:"
+                    "Identify all objects with RED, BLUE, GREEN color in the image. "
+                    "Return ONLY a JSON that will be list of objects with the following fields:"
                     "shape"
                     "color"
                     "Do not include explanations or extra text. Only return valid JSON."
@@ -97,7 +97,7 @@ def detect_object_openai(openai_client, encoded_img):
                 ],
             },
         ],
-        text_format=DetectedObject,
+        text_format=DetectedObjectList,
     )
 
     event = response.output_parsed
