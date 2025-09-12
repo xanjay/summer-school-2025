@@ -39,10 +39,9 @@ def detect_objects(ollama_client, encoded_img):
             "role": "system",
             "content": (
                 "You are a vision analysis assistant. "
-                "Identify all objects with RED, BLUE, GREEN, YELLOW color in the image. "
+                "Identify all objects with RED, BLUE, GREEN color in the image. "
                 "Return ONLY a JSON that will be list of objects with the following fields:"
-                "shape"
-                "color"
+                "color: ColorHSV (use this enum)"
                 "Do not include explanations or extra text. Only return valid JSON."
             )
         },
