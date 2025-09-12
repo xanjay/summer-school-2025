@@ -1,4 +1,3 @@
-from task4_3 import pick_position
 from utils import *
 from pyniryo import *
 from task2_5 import move_to_detected_object

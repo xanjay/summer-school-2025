@@ -26,9 +26,10 @@ encoded_img = encode_live_image(undistorted_img)
 openai_client = create_openai_client()
 
 detected_object = detect_object_openai(openai_client, encoded_img)
+print("LLM detected object:", detected_object)
 # detect and pick the object
 obj_found, shape_ret, color_ret = robot.vision_pick("vb",
-                                                    height_offset=0.01,
+                                                    height_offset=-0.001,
                                                     shape=detected_object.shape,
                                                     color=detected_object.color)
 

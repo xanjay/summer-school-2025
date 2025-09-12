@@ -108,6 +108,7 @@ def detect_objects_with_world_position(llm_client, robot, object_height: float=0
     # find available objects using LLM
     encoded_img = encode_live_image(undistorted_img)
     objects_list: DetectedObjectList = detect_objects(llm_client, encoded_img)
+    print("Ollama detected objects:", objects_list)
 
     for object in objects_list.objects:
         # 2. Detect object center and angle

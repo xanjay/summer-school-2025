@@ -32,6 +32,7 @@ def get_joints_position_from_free_move(robot):
         print("Keyboard interrupt")
 
 def get_undistorted_img_from_camera(robot):
+    robot.wait(2)
     compressed_img = robot.get_img_compressed()
     final_img = uncompress_image(compressed_img)
     undistorted_img = extract_img_workspace(final_img, 1)
@@ -86,7 +87,8 @@ def move_to_detected_object(robot, object_height=0.1, shape=ObjectShape.SQUARE, 
     # 1. Get undistorted image from camera
     undistorted_img = get_undistorted_img_from_camera(robot)
     # 2. Detect object center and angle
-    center, cnt_angle = detect_color_objects_using_nyro(undistorted_img, hsv_color=color)
+    center, cnt_angle = detect_color_objects_using_nyro(undistorted_img, hsv_color=color)[0]
+
     # 3. Convert pixel coordinates to relative robot coordinates
     relative_center = relative_pos_from_pixels(undistorted_img, *center)
     # 4. Get world position for robot
