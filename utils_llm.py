@@ -13,11 +13,21 @@ class DetectedObject(BaseModel):
     color: ObjectColor
     shape: ObjectShape
 
-class DetectedObjectWithHSVColor(BaseModel):
-    color: ColorHSV
+def MapfromObjecttoHSVColor(object: DetectedObject) -> ColorHSV:
+    if object.color == ObjectColor.RED:
+        return ColorHSV.RED
+    elif object.color == ObjectColor.GREEN:
+        return ColorHSV.GREEN
+    elif object.color == ObjectColor.BLUE:
+        return ColorHSV.BLUE
+    elif object.color == ObjectColor.YELLOW:
+        return ColorHSV.YELLOW
+    else:
+        raise ValueError(f"Unsupported color: {object.color}")
+
 
 class DetectedObjectList(BaseModel):
-    objects: List[DetectedObjectWithHSVColor]
+    objects: List[DetectedObject]
 
 def create_openai_client():
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -41,7 +51,8 @@ def detect_objects(ollama_client, encoded_img):
                 "You are a vision analysis assistant. "
                 "Identify all objects with RED, BLUE, GREEN color in the image. "
                 "Return ONLY a JSON that will be list of objects with the following fields:"
-                "color: ColorHSV (use this enum)"
+                "shape"
+                "color"
                 "Do not include explanations or extra text. Only return valid JSON."
             )
         },
@@ -109,11 +120,14 @@ def detect_objects_with_world_position(llm_client, robot, object_height: float=0
     objects_list: DetectedObjectList = detect_objects(llm_client, encoded_img)
     print("Ollama detected objects:", objects_list)
 
-    for object in objects_list.objects:
+    # grab unique colors
+    unique_detected_colors = set([obj.color for obj in objects_list.objects])
+    for object in unique_detected_colors:
         # 2. Detect object center and angle
-        same_color_objects =  detect_color_objects_using_nyro(undistorted_img, hsv_color=object.color.value)
+        object_color = MapfromObjecttoHSVColor(object)
+        same_color_objects =  detect_color_objects_using_nyro(undistorted_img, hsv_color=object_color.value)
         for center, cnt_angle in same_color_objects:
-            print(f"Detected object: color={object.color}, shape={object.shape}, center={center}, angle={cnt_angle}")
+            print(f"Detected object: color={object_color}, center={center}, angle={cnt_angle}")
             # 3. Convert pixel coordinates to relative robot coordinates
             relative_center = relative_pos_from_pixels(undistorted_img, *center)
             # 4. Get world position for robot
